@@ -1,0 +1,1270 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, ChevronDown, Users, Award, Briefcase, Search, Download, Star, Quote, ArrowRight, GraduationCap, BookOpen, MapPin, Phone, Mail, Calendar } from 'lucide-react';
+import './App.css';
+
+// ==================== ANIMATION VARIANTS ====================
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.3 }
+  }
+};
+
+const itemVariants: any = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring' as const, stiffness: 100, damping: 20 }
+  }
+};
+
+const slideInVariants: any = {
+  hidden: { opacity: 0, x: -50 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { type: 'spring' as const, stiffness: 100, damping: 25 }
+  }
+};
+
+const scaleVariants: any = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: 'spring' as const, stiffness: 100, damping: 20 }
+  }
+};
+
+// ==================== NAVBAR ====================
+
+const Navbar = ({ currentPage, setCurrentPage, isMenuOpen, setIsMenuOpen }: any) => (
+  <motion.nav 
+    initial={{ y: -100 }}
+    animate={{ y: 0 }}
+    transition={{ type: 'spring', stiffness: 100, damping: 25 }}
+    className="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50 border-b border-gray-100"
+  >
+    <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="flex justify-between items-center">
+        <motion.button 
+          onClick={() => {
+            setCurrentPage('home');
+            setIsMenuOpen(false);
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-3 group"
+        >
+          <img src="/iai-logo.jpeg" alt="IAI Logo" className="w-12 h-12 rounded-lg shadow-lg group-hover:shadow-emerald-500/50 transition-shadow duration-300 object-cover" />
+        </motion.button>
+
+        <div className="hidden md:flex items-center gap-1">
+          {[
+            { label: 'Accueil', page: 'home' },
+            { label: 'Université', page: 'about' },
+            { label: 'Événements', page: 'events' },
+            { label: 'Sujets', page: 'subjects' },
+            { label: 'Témoignages', page: 'testimonials' }
+          ].map((item) => (
+            <motion.button
+              key={item.page}
+              onClick={() => setCurrentPage(item.page)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+                currentPage === item.page
+                  ? 'text-emerald-600 bg-emerald-50'
+                  : 'text-gray-700 hover:text-emerald-600 hover:bg-gray-50'
+              }`}
+            >
+              {item.label}
+            </motion.button>
+          ))}
+        </div>
+
+        <motion.button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <AnimatePresence mode="wait">
+            {isMenuOpen ? (
+              <motion.div key="close" initial={{ rotate: 0 }} animate={{ rotate: 90 }} exit={{ rotate: 0 }} transition={{ duration: 0.2 }}>
+                <X className="w-6 h-6" />
+              </motion.div>
+            ) : (
+              <motion.div key="open" initial={{ rotate: -90 }} animate={{ rotate: 0 }} exit={{ rotate: -90 }} transition={{ duration: 0.2 }}>
+                <Menu className="w-6 h-6" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      </div>
+
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="md:hidden pt-4 pb-3 border-t mt-3"
+          >
+            {[
+              { label: 'Accueil', page: 'home' },
+              { label: 'Université', page: 'about' },
+              { label: 'Événements', page: 'events' },
+              { label: 'Sujets', page: 'subjects' },
+              { label: 'Témoignages', page: 'testimonials' }
+            ].map((item, idx) => (
+              <motion.button
+                key={item.page}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                onClick={() => {
+                  setCurrentPage(item.page);
+                  setIsMenuOpen(false);
+                }}
+                className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors"
+              >
+                {item.label}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  </motion.nav>
+);
+
+// ==================== HERO SECTION ====================
+
+// ==================== HERO SECTION ====================
+
+const HeroSection = () => {
+  return (
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-cover bg-center" style={{ backgroundImage: 'url(/iai-hero.jpg)' }}>
+      {/* Enhanced overlay with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-emerald-900/30" />
+
+      <div className="relative z-10 text-center px-4 max-w-6xl mx-auto py-20">
+        {/* Main headline */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="mb-6"
+        >
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
+            Excellence en
+            <span className="block text-emerald-300">Informatique</span>
+          </h1>
+        </motion.div>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+          className="text-lg sm:text-xl md:text-2xl text-emerald-100 mb-4 max-w-3xl mx-auto leading-relaxed"
+        >
+          IAI Cameroun - Centre de Douala : Formation d'excellence et innovation technologique
+        </motion.p>
+
+        {/* Mission statement */}
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
+          className="text-base sm:text-lg text-white/90 mb-12 max-w-2xl mx-auto"
+        >
+          Préparez votre avenir avec des programmes adaptés aux besoins du marché du travail
+        </motion.p>
+
+        {/* Key Statistics */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 max-w-4xl mx-auto"
+        >
+          {[
+            { number: '500+', label: 'Étudiants', icon: Users },
+            { number: '50+', label: 'Enseignants', icon: GraduationCap },
+            { number: '10+', label: 'Laboratoires', icon: BookOpen },
+            { number: '95%', label: 'Taux d\'emploi', icon: Award }
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 + i * 0.1 }}
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all duration-300"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 3, repeat: Infinity, delay: i * 0.2 }}
+                className="flex justify-center mb-2"
+              >
+                <stat.icon className="w-8 h-8 text-emerald-300" />
+              </motion.div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stat.number}</div>
+              <div className="text-sm text-emerald-100">{stat.label}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Call-to-action buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+        >
+          <motion.button
+            onClick={() => {
+              const element = document.getElementById('formations');
+              element?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            whileHover={{ scale: 1.05, boxShadow: '0 20px 25px -5px rgba(16, 185, 129, 0.4)' }}
+            whileTap={{ scale: 0.95 }}
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold shadow-2xl transition-all duration-300"
+          >
+            <BookOpen className="w-5 h-5" />
+            Nos Formations
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </motion.button>
+
+          <motion.button
+            onClick={() => window.open('mailto:contact@iai-cameroun.cm', '_blank')}
+            whileHover={{ scale: 1.05, boxShadow: '0 20px 25px -5px rgba(255, 255, 255, 0.2)' }}
+            whileTap={{ scale: 0.95 }}
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-full font-semibold backdrop-blur-sm transition-all duration-300"
+          >
+            <Mail className="w-5 h-5" />
+            Nous Contacter
+          </motion.button>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="flex flex-col items-center gap-2 text-white/60"
+          >
+            <span className="text-sm font-light">Découvrir plus</span>
+            <ChevronDown className="w-6 h-6" />
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== HOME PAGE ====================
+
+const HomePage = ({ setCurrentPage }: any) => {
+  const [typingText, setTypingText] = useState('');
+  const [typingIndex, setTypingIndex] = useState(0);
+  
+  const typingPhrases = [
+    "L'innovation",
+    "Une approche unique",
+    "L'avenir de l'informatique"
+  ];
+
+  useEffect(() => {
+    const currentPhrase = typingPhrases[typingIndex];
+    if (typingText.length < currentPhrase.length) {
+      const timeout = setTimeout(() => {
+        setTypingText(currentPhrase.slice(0, typingText.length + 1));
+      }, 80);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setTypingText('');
+        setTypingIndex((typingIndex + 1) % typingPhrases.length);
+      }, 2500);
+      return () => clearTimeout(timeout);
+    }
+  }, [typingText, typingIndex]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="pt-20">
+      <HeroSection />
+
+      <section id="formations" className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Nos Formations</h2>
+            <p className="text-lg text-gray-600">Excellence académique et innovation technologique</p>
+            <motion.div 
+              layoutId="underline"
+              className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mt-6 rounded-full"
+            />
+          </motion.div>
+
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid md:grid-cols-2 gap-8"
+          >
+            {[
+              {
+                icon: BookOpen,
+                title: 'Génie Logiciel (GL)',
+                description: 'Formation complète en développement logiciel, architecture système et gestion de projets.',
+                color: 'from-blue-600 to-blue-700',
+                levels: ['GL1 - Niveau 1', 'GL2A & GL2B - Niveau 2']
+              },
+              {
+                icon: GraduationCap,
+                title: 'Systèmes & Réseaux (SR)',
+                description: 'Expertise en infrastructure réseau, cybersécurité et administration des systèmes.',
+                color: 'from-purple-600 to-purple-700',
+                levels: ['SR1 - Niveau 1', 'SR2 - Niveau 2']
+              }
+            ].map((program, idx) => (
+              <motion.div
+                key={idx}
+                variants={itemVariants}
+                whileHover={{ y: -10, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)' }}
+                className="bg-gray-50 rounded-2xl p-8 hover:shadow-2xl transition-shadow duration-500 cursor-pointer group"
+              >
+                <motion.div 
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  className={`w-16 h-16 bg-gradient-to-br ${program.color} rounded-xl flex items-center justify-center mb-6 shadow-lg`}
+                >
+                  <program.icon className="w-8 h-8 text-white" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">{program.title}</h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
+                <motion.ul className="space-y-2">
+                  {program.levels.map((level, i) => (
+                    <motion.li 
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      viewport={{ once: true }}
+                      className="flex items-center gap-2 text-gray-700"
+                    >
+                      <motion.div 
+                        whileHover={{ scale: 1.5 }}
+                        className="w-2 h-2 bg-emerald-600 rounded-full"
+                      />
+                      {level}
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      <motion.section 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="py-16 bg-gradient-to-r from-emerald-600 to-teal-600"
+      >
+        <div className="max-w-6xl mx-auto px-6 text-center text-white">
+          <h3 className="text-3xl md:text-4xl font-bold mb-4">Rejoignez l'Excellence</h3>
+          <p className="text-lg mb-8 text-emerald-100">Formez-vous aux métiers de demain</p>
+          <motion.button 
+            onClick={() => {
+              setCurrentPage('events');
+              window.scrollTo(0, 0);
+            }}
+            whileHover={{ scale: 1.05, boxShadow: '0 20px 25px rgba(0, 0, 0, 0.2)' }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-600 rounded-full font-semibold transition-all duration-300"
+          >
+            Découvrir les événements
+            <motion.div animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+              <ArrowRight className="w-5 h-5" />
+            </motion.div>
+          </motion.button>
+        </div>
+      </motion.section>
+    </div>
+  );
+};
+
+// ==================== EVENTS PAGE ====================
+
+const EventsPage = ({ setCurrentPage }: any) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const events = [
+    {
+      icon: Users,
+      title: 'Parrainage',
+      description: 'Programme de mentorat connectant nouveaux étudiants et anciens pour un accompagnement personnalisé.',
+      color: 'from-emerald-600 to-teal-700',
+      action: () => setCurrentPage('parrainage')
+    },
+    {
+      icon: Calendar,
+      title: 'Événements Culturels',
+      description: 'Célébration de la diversité culturelle à travers des spectacles et expositions.',
+      color: 'from-purple-600 to-pink-700',
+      action: null
+    },
+    {
+      icon: Award,
+      title: 'Concours Miss/Mister IAI',
+      description: 'Compétition annuelle mettant en valeur talent, élégance et leadership.',
+      color: 'from-yellow-500 to-orange-600',
+      action: null
+    },
+    {
+      icon: Briefcase,
+      title: 'Journée Entrepreneuriale',
+      description: 'Rencontres avec entrepreneurs et ateliers pratiques pour stimuler l\'innovation.',
+      color: 'from-blue-600 to-indigo-700',
+      action: null
+    }
+  ];
+
+  return (
+    <div className="pt-32 pb-24 bg-gray-50 min-h-screen">
+      <div className="max-w-6xl mx-auto px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Nos Événements</h2>
+          <p className="text-lg text-gray-600">Vivez une expérience étudiante riche et dynamique</p>
+          <motion.div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mt-6 rounded-full" />
+        </motion.div>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid md:grid-cols-2 gap-8"
+        >
+          {events.map((event, idx) => (
+            <motion.div
+              key={idx}
+              variants={itemVariants}
+              whileHover={{ y: -10, boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)' }}
+              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer"
+            >
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className={`h-40 bg-gradient-to-br ${event.color} flex items-center justify-center relative overflow-hidden`}
+              >
+                <motion.div
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  <event.icon className="w-20 h-20 text-white opacity-90" />
+                </motion.div>
+              </motion.div>
+              <div className="p-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{event.title}</h3>
+                <p className="text-gray-600 mb-6">{event.description}</p>
+                {event.action && (
+                  <motion.button 
+                    onClick={event.action}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`w-full bg-gradient-to-r ${event.color} text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2`}
+                  >
+                    En savoir plus
+                    <motion.div animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.div>
+                  </motion.button>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== PARRAINAGE PAGE ====================
+
+const ParrainagePage = ({ setCurrentPage }: any) => {
+  const [isLogin, setIsLogin] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    gender: '',
+    level: '',
+    filiere: '',
+    password: ''
+  });
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleInputChange = (e: any) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const filieresByLevel: any = {
+    '1': ['SR1', 'GL1'],
+    '2': ['SR2', 'GL2A', 'GL2B']
+  };
+
+  return (
+    <div className="pt-32 pb-24 bg-gradient-to-br from-emerald-50 via-white to-teal-50 min-h-screen">
+      <div className="max-w-md mx-auto px-6">
+        <motion.button
+          onClick={() => setCurrentPage('events')}
+          whileHover={{ x: -5 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-semibold mb-8 transition-colors"
+        >
+          <motion.div animate={{ x: [-3, 0, -3] }} transition={{ duration: 2, repeat: Infinity }}>
+            <ArrowRight className="w-5 h-5 rotate-180" />
+          </motion.div>
+          Retour aux événements
+        </motion.button>
+        <AnimatePresence mode="wait">
+          {!showCountdown ? (
+            <motion.div 
+              key="form"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.4 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 backdrop-blur-sm"
+            >
+              <div className="text-center mb-8">
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+                  className="w-20 h-20 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+                >
+                  <img src="/iai-logo.jpeg" alt="IAI Logo" className="w-20 h-20 rounded-full object-cover" />
+                </motion.div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  {isLogin ? 'Connexion' : 'Inscription'}
+                </h2>
+                <p className="text-gray-600">
+                  {isLogin ? 'Accédez à votre espace' : 'Rejoignez le programme'}
+                </p>
+              </div>
+
+              <form className="space-y-4">
+                <AnimatePresence>
+                  {!isLogin && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Nom complet</label>
+                          <motion.input 
+                            type="text"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleInputChange}
+                            whileFocus={{ scale: 1.02 }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+                            placeholder="Votre nom complet"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Sexe</label>
+                          <motion.select 
+                            name="gender"
+                            value={formData.gender}
+                            onChange={handleInputChange}
+                            whileFocus={{ scale: 1.02 }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+                          >
+                            <option value="">Sélectionner</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                          </motion.select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Niveau</label>
+                          <motion.select 
+                            name="level"
+                            value={formData.level}
+                            onChange={handleInputChange}
+                            whileFocus={{ scale: 1.02 }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+                          >
+                            <option value="">Sélectionner votre niveau</option>
+                            <option value="1">Niveau 1</option>
+                            <option value="2">Niveau 2</option>
+                          </motion.select>
+                        </div>
+
+                        {formData.level && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                          >
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Filière</label>
+                            <motion.select 
+                              name="filiere"
+                              value={formData.filiere}
+                              onChange={handleInputChange}
+                              whileFocus={{ scale: 1.02 }}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+                            >
+                              <option value="">Sélectionner votre filière</option>
+                              {filieresByLevel[formData.level]?.map((f: any) => (
+                                <option key={f} value={f}>{f}</option>
+                              ))}
+                            </motion.select>
+                          </motion.div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {isLogin ? 'Nom complet' : 'Mot de passe'}
+                  </label>
+                  <motion.input 
+                    type={isLogin ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    whileFocus={{ scale: 1.02 }}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+                    placeholder={isLogin ? 'Votre nom' : 'Créer un mot de passe'}
+                  />
+                </div>
+
+                {isLogin && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Mot de passe</label>
+                    <motion.input 
+                      type="password"
+                      whileFocus={{ scale: 1.02 }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+                      placeholder="Votre mot de passe"
+                    />
+                  </motion.div>
+                )}
+
+                <motion.button 
+                  type="button"
+                  onClick={() => setShowCountdown(true)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full py-3 mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg font-bold hover:shadow-lg transition-all duration-300"
+                >
+                  {isLogin ? 'Se connecter' : "S'inscrire"}
+                </motion.button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <motion.button 
+                  onClick={() => setIsLogin(!isLogin)}
+                  whileHover={{ scale: 1.05 }}
+                  className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
+                >
+                  {isLogin ? "Pas de compte ? S'inscrire" : "Déjà inscrit ? Se connecter"}
+                </motion.button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="countdown"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.4 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 text-center"
+            >
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+                className="w-20 h-20 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
+                <img src="/iai-logo.jpeg" alt="IAI Logo" className="w-20 h-20 rounded-full object-cover" />
+              </motion.div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Inscription Réussie!</h2>
+              <p className="text-gray-600 mb-10">Compte à rebours jusqu'à l'attribution</p>
+              
+              <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid grid-cols-4 gap-3 mb-10"
+              >
+                {[
+                  { value: '15', label: 'Jours' },
+                  { value: '08', label: 'Heures' },
+                  { value: '42', label: 'Minutes' },
+                  { value: '33', label: 'Secondes' }
+                ].map((item, i) => (
+                  <motion.div 
+                    key={i}
+                    variants={scaleVariants}
+                    whileHover={{ scale: 1.1 }}
+                    className="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg p-3"
+                  >
+                    <motion.div 
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
+                      className="text-2xl font-bold text-white"
+                    >
+                      {item.value}
+                    </motion.div>
+                    <div className="text-xs text-emerald-100">{item.label}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="bg-emerald-50 rounded-lg p-4 text-sm text-gray-700"
+              >
+                Vous recevrez une notification par email dès que votre parrain ou marraine vous sera attribué.
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
+// ==================== SUBJECTS PAGE ====================
+
+const SubjectsPage = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const subjects = [
+    { name: 'Algorithmique et Structures de Données', category: 'Informatique', year: '2024' },
+    { name: 'Base de Données Avancées', category: 'Informatique', year: '2024' },
+    { name: 'Réseaux et Télécommunications', category: 'Réseaux', year: '2023' },
+    { name: 'Programmation Orientée Objet', category: 'Informatique', year: '2024' },
+    { name: 'Systèmes d\'Exploitation', category: 'Systèmes', year: '2023' },
+    { name: 'Génie Logiciel', category: 'Informatique', year: '2024' }
+  ];
+
+  const filtered = subjects.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  return (
+    <div className="pt-32 pb-24 bg-gray-50 min-h-screen">
+      <div className="max-w-4xl mx-auto px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Anciens Sujets</h2>
+          <p className="text-lg text-gray-600">Préparez-vous avec nos archives d'examens</p>
+          <motion.div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mt-6 rounded-full" />
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="relative mb-10"
+        >
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <motion.input
+            type="text"
+            placeholder="Rechercher un sujet..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            whileFocus={{ scale: 1.02, boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.1)' }}
+            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 transition-all"
+          />
+        </motion.div>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="space-y-3"
+        >
+          {filtered.map((subject, idx) => (
+            <motion.div
+              key={idx}
+              variants={slideInVariants}
+              whileHover={{ x: 10, boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)' }}
+              className="group bg-white rounded-lg shadow hover:shadow-lg transition-all duration-300 p-4 flex items-center justify-between cursor-pointer"
+            >
+              <div className="flex items-center gap-4 flex-1">
+                <motion.div 
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0"
+                >
+                  <BookOpen className="w-5 h-5 text-white" />
+                </motion.div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900">{subject.name}</h3>
+                  <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                    <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-medium">{subject.category}</span>
+                    <span>{subject.year}</span>
+                  </div>
+                </div>
+              </div>
+              <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-5 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Télécharger</span>
+              </motion.button>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== ABOUT PAGE ====================
+
+const AboutPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="pt-32 pb-24 bg-white min-h-screen">
+      <div className="max-w-5xl mx-auto px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">À Propos de l'IAI</h2>
+          <p className="text-lg text-gray-600">Centre d'excellence en informatique et innovation</p>
+          <motion.div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mt-6 rounded-full" />
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-12 mb-16">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
+            <h3 className="text-2xl font-bold text-gray-900">Notre Mission</h3>
+            <p className="text-gray-700 leading-relaxed">
+              L'Institut Africain d'Informatique (IAI) Cameroun, Centre de Douala, est un établissement d'enseignement supérieur dédié à la formation d'excellence en informatique et technologies numériques.
+            </p>
+            <p className="text-gray-700 leading-relaxed">
+              Notre mission est de former des professionnels hautement qualifiés, capables de répondre aux défis technologiques du continent africain et du monde.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl p-8 text-white space-y-6"
+          >
+            <h3 className="text-2xl font-bold">Nos Valeurs</h3>
+            <ul className="space-y-3">
+              {[
+                'Excellence académique',
+                'Innovation pédagogique',
+                'Compétences pratiques',
+                'Esprit entrepreneurial',
+                'Ouverture internationale'
+              ].map((value, i) => (
+                <motion.li 
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-3"
+                >
+                  <motion.div 
+                    whileHover={{ scale: 1.5 }}
+                    className="w-2 h-2 bg-white rounded-full"
+                  />
+                  {value}
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        </div>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid md:grid-cols-3 gap-6 mb-16"
+        >
+          {[
+            { icon: MapPin, label: 'Localisation', value: 'Douala, Cameroun' },
+            { icon: Phone, label: 'Téléphone', value: '+237 XXX XXX XXX' },
+            { icon: Mail, label: 'Email', value: 'contact@iai-cameroun.cm' }
+          ].map((item, i) => (
+            <motion.div 
+              key={i}
+              variants={scaleVariants}
+              whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)' }}
+              className="bg-gray-50 rounded-lg p-6 text-center cursor-pointer"
+            >
+              <motion.div whileHover={{ scale: 1.2, rotate: 10 }}>
+                <item.icon className="w-8 h-8 text-emerald-600 mx-auto mb-3" />
+              </motion.div>
+              <h4 className="font-bold text-gray-900 mb-1">{item.label}</h4>
+              <p className="text-gray-600 text-sm">{item.value}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-8 md:p-12 text-center"
+        >
+          <h3 className="text-3xl font-bold text-gray-900 mb-4">Infrastructure Moderne</h3>
+          <p className="text-gray-700 mb-10 max-w-3xl mx-auto">
+            Notre campus dispose d'équipements de pointe : laboratoires informatiques équipés, salles modernes, espaces collaboratifs et bibliothèque numérique.
+          </p>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+          >
+            {[
+              { number: '500+', label: 'Étudiants' },
+              { number: '50+', label: 'Enseignants' },
+              { number: '10+', label: 'Laboratoires' },
+              { number: '95%', label: 'Taux d\'emploi' }
+            ].map((stat, i) => (
+              <motion.div 
+                key={i}
+                variants={scaleVariants}
+                whileHover={{ scale: 1.05 }}
+                className="text-center cursor-pointer"
+              >
+                <motion.div 
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+                  className="text-3xl font-bold text-emerald-600 mb-1"
+                >
+                  {stat.number}
+                </motion.div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== TESTIMONIALS PAGE ====================
+
+const TestimonialsPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const testimonials = [
+    {
+      name: 'Marie Nguema',
+      role: 'Ingénieur Logiciel chez Microsoft',
+      year: 'Promotion 2022',
+      text: 'L\'IAI m\'a donné les compétences techniques et la confiance pour réussir dans l\'industrie tech. Les professeurs sont passionnés.',
+      rating: 5
+    },
+    {
+      name: 'Jean-Paul Essomba',
+      role: 'Fondateur de TechStart Africa',
+      year: 'Promotion 2021',
+      text: 'La formation entrepreneuriale de l\'IAI m\'a permis de lancer ma startup. L\'écosystème d\'innovation est exceptionnel.',
+      rating: 5
+    },
+    {
+      name: 'Fatima Bello',
+      role: 'Admin Système chez Orange',
+      year: 'Promotion 2023',
+      text: 'La formation en réseaux est très complète. Les projets pratiques nous préparent vraiment au monde professionnel.',
+      rating: 5
+    },
+    {
+      name: 'Patrick Kouam',
+      role: 'Développeur Full Stack',
+      year: 'Promotion 2020',
+      text: 'L\'IAI m\'a appris à coder et à penser comme un ingénieur. Les compétences en résolution de problèmes sont inestimables.',
+      rating: 5
+    }
+  ];
+
+  return (
+    <div className="pt-32 pb-24 bg-gray-50 min-h-screen">
+      <div className="max-w-6xl mx-auto px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Témoignages</h2>
+          <p className="text-lg text-gray-600">Ils ont réussi grâce à l'IAI Cameroun</p>
+          <motion.div className="w-20 h-1 bg-gradient-to-r from-emerald-600 to-teal-600 mx-auto mt-6 rounded-full" />
+        </motion.div>
+
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid md:grid-cols-2 gap-8 mb-16"
+        >
+          {testimonials.map((testimonial, idx) => (
+            <motion.div
+              key={idx}
+              variants={itemVariants}
+              whileHover={{ y: -10, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)' }}
+              className="bg-white rounded-xl shadow hover:shadow-lg transition-all duration-300 p-6 cursor-pointer"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <motion.div 
+                    whileHover={{ scale: 1.1 }}
+                    className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center text-white font-bold"
+                  >
+                    {testimonial.name.charAt(0)}
+                  </motion.div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900">{testimonial.name}</h3>
+                    <p className="text-sm text-emerald-600 font-medium">{testimonial.role}</p>
+                    <p className="text-xs text-gray-500">{testimonial.year}</p>
+                  </div>
+                </div>
+                <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                  <Quote className="w-6 h-6 text-emerald-200" />
+                </motion.div>
+              </div>
+
+              <motion.div className="flex gap-1 mb-3">
+                {[...Array(testimonial.rating)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <p className="text-gray-700 italic text-sm leading-relaxed">
+                "{testimonial.text}"
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 md:p-12 text-center text-white"
+        >
+          <h3 className="text-3xl font-bold mb-3">Rejoignez Nos Anciens</h3>
+          <p className="text-lg mb-8 max-w-2xl mx-auto text-emerald-100">
+            Faites partie d'une communauté de professionnels qui transforment l'Afrique par la technologie
+          </p>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-emerald-600 rounded-full font-bold transition-all duration-300"
+          >
+            Commencer votre parcours
+            <motion.div animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+              <ArrowRight className="w-5 h-5" />
+            </motion.div>
+          </motion.button>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== FOOTER ====================
+
+const Footer = ({ setCurrentPage }: any) => (
+  <motion.footer 
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    transition={{ duration: 0.6 }}
+    viewport={{ once: true }}
+    className="bg-slate-900 text-white py-16"
+  >
+    <div className="max-w-6xl mx-auto px-6">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="grid md:grid-cols-3 gap-12 mb-12 pb-12 border-b border-slate-700"
+      >
+        <motion.div variants={itemVariants}>
+          <div className="flex items-center gap-3 mb-4">
+            <img src="/iai-logo.jpeg" alt="IAI Logo" className="w-10 h-10 rounded-lg object-cover" />
+            <h3 className="text-lg font-bold">IAI Cameroun</h3>
+          </div>
+          <p className="text-gray-400 text-sm">Former les leaders technologiques de demain</p>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <h4 className="font-bold text-lg mb-4">Navigation</h4>
+          <ul className="space-y-2 text-sm">
+            {[
+              { label: 'Accueil', page: 'home' },
+              { label: 'Université', page: 'about' },
+              { label: 'Événements', page: 'events' },
+              { label: 'Témoignages', page: 'testimonials' }
+            ].map((item) => (
+              <motion.li key={item.page} whileHover={{ x: 5 }}>
+                <button 
+                  onClick={() => setCurrentPage(item.page)}
+                  className="text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  {item.label}
+                </button>
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <h4 className="font-bold text-lg mb-4">Contact</h4>
+          <ul className="space-y-3 text-sm text-gray-400">
+            <li className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-emerald-400" />
+              Douala, Cameroun
+            </li>
+            <li className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-emerald-400" />
+              +237 XXX XXX XXX
+            </li>
+            <li className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-emerald-400" />
+              contact@iai-cameroun.cm
+            </li>
+          </ul>
+        </motion.div>
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        viewport={{ once: true }}
+        className="text-center text-gray-500 text-sm"
+      >
+        <p>&copy; 2024 IAI Cameroun - Centre de Douala. Tous droits réservés.</p>
+      </motion.div>
+    </div>
+  </motion.footer>
+);
+
+// ==================== MAIN APP ====================
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+      
+      <AnimatePresence mode="wait">
+        {currentPage === 'home' && <HomePage setCurrentPage={setCurrentPage} key="home" />}
+        {currentPage === 'events' && <EventsPage setCurrentPage={setCurrentPage} key="events" />}
+        {currentPage === 'parrainage' && <ParrainagePage setCurrentPage={setCurrentPage} key="parrainage" />}
+        {currentPage === 'subjects' && <SubjectsPage key="subjects" />}
+        {currentPage === 'about' && <AboutPage key="about" />}
+        {currentPage === 'testimonials' && <TestimonialsPage key="testimonials" />}
+      </AnimatePresence>
+
+      <Footer setCurrentPage={setCurrentPage} />
+    </div>
+  );
+}
