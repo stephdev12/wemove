@@ -32,7 +32,6 @@ export default function WemoveLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [activeService, setActiveService] = useState<number | null>(null);
   const heroRef = useRef(null);
 
   useEffect(() => {
@@ -268,8 +267,6 @@ export default function WemoveLanding() {
                 className={`group relative p-8 bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl hover:bg-white/[0.05] transition-all duration-500 cursor-pointer overflow-hidden ${
                   idx === 0 ? 'lg:col-span-2 lg:row-span-2' : ''
                 } ${idx === 3 ? 'sm:col-span-2 lg:col-span-1' : ''}`}
-                onMouseEnter={() => setActiveService(idx)}
-                onMouseLeave={() => setActiveService(null)}
               >
                 {/* Gradient Overlay on Hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
