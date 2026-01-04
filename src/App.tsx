@@ -2,23 +2,23 @@ import { useState, useEffect, useRef } from 'react';
 import { 
   Code, Cloud, Zap, Brain, Bug, Shield, Server, MessageSquare, 
   Palette, Layout, Database, GraduationCap, Users, ArrowRight,
-  Menu, X, Sparkles, ChevronRight, Globe, Rocket, Star, Check
+  Menu, X, Sparkles, ChevronRight, Globe, Rocket, Star, Check, ChevronLeft
 } from 'lucide-react';
 
 const services = [
-  { icon: Code, title: "Frontend & Backend", desc: "Apps web next-gen performantes", color: "from-blue-500 to-cyan-500", delay: 0 },
-  { icon: Cloud, title: "DevOps", desc: "Infrastructure cloud moderne", color: "from-purple-500 to-pink-500", delay: 0.1 },
-  { icon: Zap, title: "Automatisation", desc: "Workflows intelligents", color: "from-yellow-500 to-orange-500", delay: 0.2 },
-  { icon: Brain, title: "Intégration IA", desc: "Intelligence artificielle avancée", color: "from-green-500 to-emerald-500", delay: 0.3 },
-  { icon: Bug, title: "Testeur QA", desc: "Qualité irréprochable", color: "from-red-500 to-rose-500", delay: 0.4 },
-  { icon: Shield, title: "Bug Bounty", desc: "Sécurité maximale", color: "from-indigo-500 to-violet-500", delay: 0.5 },
-  { icon: Server, title: "Pterodactyl Panels", desc: "Gestion serveurs pro", color: "from-teal-500 to-cyan-500", delay: 0.6 },
-  { icon: MessageSquare, title: "Bots Messaging", desc: "WhatsApp & Telegram pro", color: "from-pink-500 to-purple-500", delay: 0.7 },
-  { icon: Palette, title: "Graphisme", desc: "Identité visuelle unique", color: "from-orange-500 to-red-500", delay: 0.8 },
-  { icon: Layout, title: "UI/UX Design", desc: "Expériences inoubliables", color: "from-blue-500 to-purple-500", delay: 0.9 },
-  { icon: Database, title: "VPS Hosting", desc: "Performance ultime", color: "from-green-500 to-teal-500", delay: 1.0 },
-  { icon: GraduationCap, title: "Formation", desc: "Expertise tech garantie", color: "from-yellow-500 to-pink-500", delay: 1.1 },
-  { icon: Users, title: "Accompagnement", desc: "Support dédié 24/7", color: "from-cyan-500 to-blue-500", delay: 1.2 }
+  { icon: Code, title: "Frontend & Backend", desc: "Apps web next-gen performantes", color: "from-blue-500 to-cyan-500" },
+  { icon: Cloud, title: "DevOps", desc: "Infrastructure cloud moderne", color: "from-purple-500 to-pink-500" },
+  { icon: Zap, title: "Automatisation", desc: "Workflows intelligents", color: "from-yellow-500 to-orange-500" },
+  { icon: Brain, title: "Intégration IA", desc: "Intelligence artificielle avancée", color: "from-green-500 to-emerald-500" },
+  { icon: Bug, title: "Testeur QA", desc: "Qualité irréprochable", color: "from-red-500 to-rose-500" },
+  { icon: Shield, title: "Bug Bounty", desc: "Sécurité maximale", color: "from-indigo-500 to-violet-500" },
+  { icon: Server, title: "Pterodactyl Panels", desc: "Gestion serveurs pro", color: "from-teal-500 to-cyan-500" },
+  { icon: MessageSquare, title: "Bots Messaging", desc: "WhatsApp & Telegram pro", color: "from-pink-500 to-purple-500" },
+  { icon: Palette, title: "Graphisme", desc: "Identité visuelle unique", color: "from-orange-500 to-red-500" },
+  { icon: Layout, title: "UI/UX Design", desc: "Expériences inoubliables", color: "from-blue-500 to-purple-500" },
+  { icon: Database, title: "VPS Hosting", desc: "Performance ultime", color: "from-green-500 to-teal-500" },
+  { icon: GraduationCap, title: "Formation", desc: "Expertise tech garantie", color: "from-yellow-500 to-pink-500" },
+  { icon: Users, title: "Accompagnement", desc: "Support dédié 24/7", color: "from-cyan-500 to-blue-500" }
 ];
 
 const stats = [
@@ -32,13 +32,57 @@ export default function WemoveLanding() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isVisible, setIsVisible] = useState(false);
-  const heroRef = useRef(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
+  const [sectionsVisible, setSectionsVisible] = useState({
+    hero: false,
+    services: false,
+    expertise: false,
+    contact: false
+  });
+  
+  const heroRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const expertiseRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
+  // Intersection Observer pour les animations d'entrée
   useEffect(() => {
-    setIsVisible(true);
-    
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const observerOptions = {
+      threshold: 0.2,
+      rootMargin: '0px'
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !sectionsVisible[entry.target.id as keyof typeof sectionsVisible]) {
+          setSectionsVisible(prev => ({
+            ...prev,
+            [entry.target.id]: true
+          }));
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    if (heroRef.current) observer.observe(heroRef.current);
+    if (servicesRef.current) observer.observe(servicesRef.current);
+    if (expertiseRef.current) observer.observe(expertiseRef.current);
+    if (contactRef.current) observer.observe(contactRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Parallax effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+      setScrollY(window.scrollY);
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
@@ -52,9 +96,35 @@ export default function WemoveLanding() {
     };
   }, []);
 
+  // Auto-play carousel
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % services.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     setIsMenuOpen(false);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide(prev => (prev + 1) % services.length);
+    setIsAutoPlaying(false);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(prev => (prev - 1 + services.length) % services.length);
+    setIsAutoPlaying(false);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
   };
 
   return (
@@ -151,9 +221,18 @@ export default function WemoveLanding() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" ref={heroRef} className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20 relative">
-        {/* Animated grid */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <section 
+        id="hero" 
+        ref={heroRef} 
+        className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20 relative"
+      >
+        {/* Parallax grid */}
+        <div 
+          className="absolute inset-0 overflow-hidden pointer-events-none"
+          style={{
+            transform: `translateY(${scrollY * 0.3}px)`
+          }}
+        >
           <div className="absolute inset-0" style={{
             backgroundImage: `
               linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
@@ -169,7 +248,7 @@ export default function WemoveLanding() {
             {/* Floating badge */}
             <div 
               className={`inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:border-purple-500/30 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                sectionsVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
               }`}
               style={{ transitionDelay: '0.1s' }}
             >
@@ -187,9 +266,12 @@ export default function WemoveLanding() {
             <div className="space-y-4">
               <h1 
                 className={`text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black leading-none transition-all duration-1000 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                  sectionsVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
                 }`}
-                style={{ transitionDelay: '0.2s' }}
+                style={{ 
+                  transitionDelay: '0.2s',
+                  transform: `translateY(${sectionsVisible.hero ? 0 : 20}px) translateZ(${scrollY * -0.1}px)`
+                }}
               >
                 <span className="block bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent drop-shadow-2xl">
                   WE MOVE
@@ -197,7 +279,7 @@ export default function WemoveLanding() {
               </h1>
               <h2 
                 className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none transition-all duration-1000 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                  sectionsVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
                 }`}
                 style={{ transitionDelay: '0.4s' }}
               >
@@ -210,7 +292,7 @@ export default function WemoveLanding() {
             {/* Subtitle */}
             <p 
               className={`text-xl sm:text-2xl md:text-3xl text-white/70 max-w-4xl mx-auto leading-relaxed font-light transition-all duration-1000 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                sectionsVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
               }`}
               style={{ transitionDelay: '0.6s' }}
             >
@@ -222,7 +304,7 @@ export default function WemoveLanding() {
             {/* CTA Buttons */}
             <div 
               className={`flex flex-col sm:flex-row gap-4 justify-center pt-8 transition-all duration-1000 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                sectionsVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
               }`}
               style={{ transitionDelay: '0.8s' }}
             >
@@ -235,9 +317,6 @@ export default function WemoveLanding() {
                   <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-300" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 blur-2xl animate-pulse" />
-                </div>
               </button>
               
               <button 
@@ -248,14 +327,13 @@ export default function WemoveLanding() {
                   Discuter du projet
                   <Rocket size={20} className="group-hover:rotate-45 transition-transform duration-500" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </button>
             </div>
 
             {/* Stats with stagger */}
             <div 
               className={`grid grid-cols-2 md:grid-cols-4 gap-6 pt-20 max-w-5xl mx-auto transition-all duration-1000 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                sectionsVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
               }`}
               style={{ transitionDelay: '1s' }}
             >
@@ -263,10 +341,6 @@ export default function WemoveLanding() {
                 <div 
                   key={idx}
                   className="group relative p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl hover:bg-white/10 hover:border-purple-500/30 transition-all duration-500 hover:scale-110 overflow-hidden"
-                  style={{ 
-                    transitionDelay: `${1 + idx * 0.1}s`,
-                    animation: isVisible ? `fadeInUp 0.6s ease-out ${1 + idx * 0.1}s both` : 'none'
-                  }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
@@ -289,10 +363,14 @@ export default function WemoveLanding() {
         </div>
       </section>
 
-      {/* Services Section with cards animation */}
-      <section id="services" className="py-32 px-4 sm:px-6 lg:px-8 relative">
+      {/* Services Carousel Section */}
+      <section id="services" ref={servicesRef} className="py-32 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
+          <div 
+            className={`text-center mb-24 transition-all duration-1000 ${
+              sectionsVisible.services ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+            }`}
+          >
             <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/10 border border-purple-500/20 rounded-full mb-8 hover:bg-purple-500/20 transition-all duration-300">
               <Star size={16} className="text-purple-400 animate-spin" style={{ animationDuration: '3s' }} />
               <span className="text-sm font-bold text-purple-400">13 Services Premium</span>
@@ -305,59 +383,119 @@ export default function WemoveLanding() {
             </p>
           </div>
 
-          {/* Modern card grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, idx) => (
-              <div
-                key={idx}
-                className={`group relative p-8 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl hover:border-white/20 transition-all duration-700 cursor-pointer overflow-hidden hover:scale-105 hover:-translate-y-2 ${
-                  idx === 0 ? 'lg:col-span-2 lg:row-span-2 p-12' : ''
-                }`}
-                style={{
-                  animation: `fadeInUp 0.6s ease-out ${service.delay}s both`
-                }}
+          {/* Carousel Container */}
+          <div 
+            className={`relative transition-all duration-1000 ${
+              sectionsVisible.services ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+            }`}
+            style={{ transitionDelay: '0.2s' }}
+            onMouseEnter={() => setIsAutoPlaying(false)}
+            onMouseLeave={() => setIsAutoPlaying(true)}
+          >
+            {/* Carousel Track */}
+            <div className="overflow-hidden rounded-3xl" ref={carouselRef}>
+              <div 
+                className="flex transition-transform duration-700 ease-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
-                {/* Animated gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-20 transition-all duration-700`} />
-                
-                {/* Glow effect */}
-                <div className={`absolute -inset-1 bg-gradient-to-r ${service.color} rounded-3xl blur-2xl opacity-0 group-hover:opacity-30 transition-all duration-700 -z-10`} />
-                
-                {/* Animated icon */}
-                <div className="relative z-10">
-                  <div className={`inline-flex p-5 bg-gradient-to-br ${service.color} rounded-2xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl`}>
-                    <service.icon size={idx === 0 ? 48 : 32} className="text-white" />
-                  </div>
-                  
-                  <h3 className={`font-black mb-3 group-hover:text-white transition-colors duration-300 ${idx === 0 ? 'text-4xl' : 'text-2xl'}`}>
-                    {service.title}
-                  </h3>
-                  <p className={`text-white/60 group-hover:text-white/80 mb-6 transition-colors duration-300 ${idx === 0 ? 'text-lg' : 'text-base'}`}>
-                    {service.desc}
-                  </p>
-                  
-                  {/* Animated CTA */}
-                  <div className="flex items-center gap-2 text-sm font-bold text-purple-400 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-0 group-hover:translate-x-2">
-                    <span className={`bg-gradient-to-r ${service.color} bg-clip-text text-transparent`}>Découvrir</span>
-                    <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
-                  </div>
-                </div>
+                {services.map((service, idx) => (
+                  <div
+                    key={idx}
+                    className="min-w-full px-4"
+                  >
+                    <div className="group relative p-12 sm:p-16 bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-xl border border-white/10 rounded-3xl hover:border-white/20 transition-all duration-700 overflow-hidden max-w-4xl mx-auto">
+                      {/* Animated gradient background */}
+                      <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-20 transition-all duration-700`} />
+                      
+                      {/* Glow effect */}
+                      <div className={`absolute -inset-1 bg-gradient-to-r ${service.color} rounded-3xl blur-3xl opacity-0 group-hover:opacity-30 transition-all duration-700 -z-10`} />
+                      
+                      {/* Content */}
+                      <div className="relative z-10 text-center">
+                        <div className={`inline-flex p-8 bg-gradient-to-br ${service.color} rounded-3xl mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-2xl`}>
+                          <service.icon size={64} className="text-white" />
+                        </div>
+                        
+                        <h3 className="text-5xl font-black mb-6 group-hover:text-white transition-colors duration-300">
+                          {service.title}
+                        </h3>
+                        <p className="text-2xl text-white/60 group-hover:text-white/80 mb-8 transition-colors duration-300 max-w-2xl mx-auto">
+                          {service.desc}
+                        </p>
+                        
+                        {/* CTA */}
+                        <button className="inline-flex items-center gap-3 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 group/btn">
+                          <span className={`bg-gradient-to-r ${service.color} bg-clip-text text-transparent`}>
+                            Découvrir
+                          </span>
+                          <ChevronRight size={20} className="group-hover/btn:translate-x-1 transition-transform duration-300" />
+                        </button>
+                      </div>
 
-                {/* Corner decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} rounded-full blur-3xl group-hover:blur-2xl transition-all duration-700`} />
-                </div>
+                      {/* Progress bar */}
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
+                        <div 
+                          className={`h-full bg-gradient-to-r ${service.color} transition-all duration-300`}
+                          style={{ 
+                            width: currentSlide === idx && isAutoPlaying ? '100%' : '0%',
+                            transitionDuration: currentSlide === idx && isAutoPlaying ? '4000ms' : '300ms'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-10"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-10"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            {/* Dots Navigation */}
+            <div className="flex justify-center gap-2 mt-8">
+              {services.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => goToSlide(idx)}
+                  className={`transition-all duration-300 rounded-full ${
+                    currentSlide === idx 
+                      ? 'w-12 h-3 bg-gradient-to-r from-purple-500 to-pink-500' 
+                      : 'w-3 h-3 bg-white/20 hover:bg-white/40'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Expertise Showcase with parallax effect */}
-      <section id="expertise" className="py-32 px-4 sm:px-6 lg:px-8 relative">
+      <section 
+        id="expertise" 
+        ref={expertiseRef} 
+        className="py-32 px-4 sm:px-6 lg:px-8 relative"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
+            <div 
+              className={`space-y-8 transition-all duration-1000 ${
+                sectionsVisible.expertise ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
+              }`}
+              style={{
+                transform: `translateX(${sectionsVisible.expertise ? 0 : -20}px) translateY(${scrollY * -0.05}px)`
+              }}
+            >
               <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-full hover:bg-blue-500/20 transition-all duration-300">
                 <Globe size={16} className="text-blue-400" />
                 <span className="text-sm font-bold text-blue-400">Innovation Mondiale</span>
@@ -379,11 +517,8 @@ export default function WemoveLanding() {
                   <div 
                     key={idx} 
                     className="flex items-center gap-4 group hover:translate-x-2 transition-all duration-300"
-                    style={{
-                      animation: `fadeInLeft 0.6s ease-out ${idx * 0.1}s both`
-                    }}
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-purple-500/30">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg shadow-purple-500/30">
                       <Check size={20} className="text-white" />
                     </div>
                     <span className="text-lg text-white/80 group-hover:text-white font-medium transition-colors duration-300">{item}</span>
@@ -392,7 +527,14 @@ export default function WemoveLanding() {
               </div>
             </div>
 
-            <div className="relative">
+            <div 
+              className={`relative transition-all duration-1000 ${
+                sectionsVisible.expertise ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
+              }`}
+              style={{
+                transform: `translateX(${sectionsVisible.expertise ? 0 : 20}px) translateY(${scrollY * -0.08}px)`
+              }}
+            >
               <div className="grid grid-cols-2 gap-6">
                 {[
                   { label: "Technologies", value: "50+", icon: Code },
@@ -403,9 +545,6 @@ export default function WemoveLanding() {
                   <div 
                     key={idx}
                     className="group relative p-8 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl hover:border-purple-500/30 transition-all duration-500 hover:scale-110 hover:-translate-y-2 overflow-hidden"
-                    style={{
-                      animation: `fadeInUp 0.6s ease-out ${0.2 + idx * 0.1}s both`
-                    }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur-2xl opacity-0 group-hover:opacity-20 transition-all duration-500 -z-10" />
@@ -425,15 +564,19 @@ export default function WemoveLanding() {
         </div>
       </section>
 
-      {/* Contact Section with 3D effect */}
-      <section id="contact" className="py-32 px-4 sm:px-6 lg:px-8 relative">
+      {/* Contact Section */}
+      <section id="contact" ref={contactRef} className="py-32 px-4 sm:px-6 lg:px-8 relative">
         <div className="max-w-5xl mx-auto text-center relative">
           {/* Animated gradient orb */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-[600px] h-[600px] bg-gradient-to-r from-purple-600/30 via-pink-600/30 to-cyan-600/30 rounded-full blur-[120px] animate-pulse" />
           </div>
           
-          <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[3rem] p-12 sm:p-20 hover:border-white/20 transition-all duration-700 group overflow-hidden">
+          <div 
+            className={`relative bg-gradient-to-br from-white/[0.08] to-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[3rem] p-12 sm:p-20 hover:border-white/20 transition-all duration-700 group overflow-hidden ${
+              sectionsVisible.contact ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+            }`}
+          >
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-pink-600/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             
@@ -456,9 +599,6 @@ export default function WemoveLanding() {
                   <ArrowRight size={28} className="group-hover:translate-x-3 transition-transform duration-300" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 blur-2xl animate-pulse" />
-                </div>
               </button>
 
               <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/50 pt-6">
@@ -500,14 +640,11 @@ export default function WemoveLanding() {
             </div>
             
             <div className="flex gap-8 text-base text-white/50">
-              {['LinkedIn', 'Twitter', 'GitHub', 'Contact'].map((link, idx) => (
+              {['LinkedIn', 'Twitter', 'GitHub', 'Contact'].map((link) => (
                 <a 
                   key={link}
                   href="#" 
                   className="hover:text-white transition-all duration-300 hover:scale-110 font-medium relative group"
-                  style={{
-                    animation: `fadeIn 0.6s ease-out ${idx * 0.1}s both`
-                  }}
                 >
                   {link}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 group-hover:w-full transition-all duration-300" />
@@ -527,37 +664,6 @@ export default function WemoveLanding() {
 
       {/* Custom CSS for animations */}
       <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fadeInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
         @keyframes blob {
           0%, 100% {
             transform: translate(0, 0) scale(1);
